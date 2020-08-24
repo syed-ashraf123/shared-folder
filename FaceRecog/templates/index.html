@@ -1,0 +1,17 @@
+  
+<html>
+  <head>
+    <title>Streaming </title>
+  </head>
+  <body>
+    <h1>Streaming </h1>
+    <img src="{{ url_for('video_feed') }}">
+    <b onclick="res()" id="new">Whatever</b>
+  </body>
+  <script type="text/javascript">
+  	function res() {
+  		document.getElementById('new').innerHTML="Yippe";
+  	};
+  	
+  </script>
+</html>
