@@ -1,59 +1,61 @@
-import { useState } from "react";
-import Axios from "axios";
-function App() {
-  const [name, setName] = useState("");
-  const [age, setAge] = useState("");
-  const [city, setCity] = useState("");
-  const post = async (e) => {
-    console.log(age, city, name);
-    e.preventDefault();
-    const data = await Axios.post("http://localhost:5000", {
-      name: name,
-      age: age,
-      city: city,
-    });
-    const res = await data;
-    console.log(res);
-  };
-  return (
-    <div className="App">
-      Form Data
-      <form>
-        <input
-          type="text"
-          placeholder="Input Your Name"
-          onChange={(e) => {
-            setName(e.target.value);
-          }}
-        />
-        <br />
-        <input
-          type="text"
-          placeholder="Age"
-          onChange={(e) => {
-            setAge(e.target.value);
-          }}
-        />
-        <br />
-        <input
-          type="text"
-          placeholder="City"
-          onChange={(e) => {
-            setCity(e.target.value);
-          }}
-        />
-        <br />
-        <button
-          onClick={(e) => {
-            post(e);
-          }}
-        >
-          Submit
-        </button>
-        {name}
-      </form>
-    </div>
-  );
-}
+const Joi = require("joi");
+const Complexity = require("joi-password-complexity");
+const regex = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g;
 
-export default App;
+const complexityOptions = {
+  min: 8,
+  max: 16,
+  lowerCase: 1,
+  upperCase: 1,
+  numeric: 1,
+  symbol: 1,
+};
+const adminRegisterationValidation = (data, res) => {
+  const schema = Joi.object({
+    name: Complexity(complexityOptions)
+      .regex(/^[a-zA-Z0-9_. ]*$/, "Other special characters not allowed")
+      .required()
+      .custom((value, helper) => {
+        if (regex.test(value[0]) || regex.test(value[value.length - 1]))
+          return helper.message("Username Not accecpted");
+        return true;
+      }),
+    password: Complexity(complexityOptions).required(),
+    email: Joi.string().email().required(),
+    mobile: Joi.number().min(6000000000).max(9999999999).integer().positive(),
+
+    role: Joi.number().integer().positive().min(2),
+  });
+  return schema.validate(data);
+};
+
+module.exports.adminRegisterationValidation = adminRegisterationValidation;
+
+const loginValidation = (data, res) => {
+  const schema = Joi.object({
+    name: Complexity(complexityOptions)
+      .regex(/^[a-zA-Z0-9_. ]*$/, "Other special characters not allowed")
+      .required()
+      .custom((value, helper) => {
+        if (regex.test(value[0]) || regex.test(value[value.length - 1]))
+          return helper.message("Username Not accecpted");
+        return true;
+      }),
+    password: Complexity(complexityOptions).required(),
+  });
+  return schema.validate(data);
+};
+
+module.exports.loginValidation = loginValidation;
+
+const roleValidation = (data, res) => {
+  //Validating role
+
+  const schema = Joi.object({
+    role: Joi.number().integer().positive().min(1).required(),
+    id: Joi.number().integer().positive().min(1).required(),
+  });
+  return schema.validate(data);
+};
+
+module.exports.roleValidation = roleValidation;
